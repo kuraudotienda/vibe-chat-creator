@@ -24,6 +24,30 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				// Chat interface colors
+				'chat-bg': 'hsl(var(--chat-bg))',
+				'chat-surface': 'hsl(var(--chat-surface))',
+				'chat-surface-hover': 'hsl(var(--chat-surface-hover))',
+				
+				// Message colors
+				'user-message': 'hsl(var(--user-message))',
+				'bot-message': 'hsl(var(--bot-message))',
+				'message-text': 'hsl(var(--message-text))',
+				'message-timestamp': 'hsl(var(--message-timestamp))',
+				
+				// Personality theme colors
+				'personality-primary': 'hsl(var(--personality-primary))',
+				'personality-secondary': 'hsl(var(--personality-secondary))',
+				'personality-accent': 'hsl(var(--personality-accent))',
+				'personality-particle': 'hsl(var(--personality-particle))',
+				'personality-glow': 'hsl(var(--personality-glow))',
+				
+				// Input colors
+				'input-bg': 'hsl(var(--input-bg))',
+				'input-border': 'hsl(var(--input-border))',
+				'input-focus': 'hsl(var(--input-focus))',
+				
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -51,16 +75,6 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
-				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
 			borderRadius: {
