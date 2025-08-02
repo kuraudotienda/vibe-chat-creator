@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { PersonalitySidebar } from './PersonalitySidebar';
-import { ChatArea } from './ChatArea';
-import { ControlPanel } from './ControlPanel';
+import { CleanChatArea } from './CleanChatArea';
 import { ParticleBackground } from './ParticleBackground';
 
 export type PersonalityMode = 'default' | 'roast' | 'hype' | 'conspiracy' | 'motivational' | 'sleepy';
@@ -73,42 +71,31 @@ export const ChatInterface = () => {
 
   return (
     <div 
-      className="h-screen w-full bg-chat-bg relative overflow-hidden transition-all duration-500 ease-in-out"
+      className="h-screen w-full bg-background relative overflow-hidden"
       data-personality={currentPersonality}
     >
-      {/* Particle Background */}
-      <ParticleBackground 
-        personality={currentPersonality} 
-        mood={mood}
-        effectsEnabled={effectsEnabled}
-      />
-      
-      <div className="relative z-10 h-full flex">
-        {/* Left Sidebar - Personality Modes */}
-        <PersonalitySidebar 
-          currentPersonality={currentPersonality}
-          onPersonalityChange={handlePersonalityChange}
+      {/* Subtle Particle Background - Hidden by default */}
+      {effectsEnabled && (
+        <ParticleBackground 
+          personality={currentPersonality} 
+          mood={mood}
+          effectsEnabled={effectsEnabled}
         />
-        
-        {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
-          <ChatArea 
-            messages={messages}
-            isTyping={isTyping}
-            currentPersonality={currentPersonality}
-            onSendMessage={handleSendMessage}
-          />
-        </div>
-        
-        {/* Right Control Panel */}
-        <ControlPanel 
+      )}
+      
+      <div className="relative z-10 h-full">
+        <CleanChatArea 
+          messages={messages}
+          isTyping={isTyping}
+          currentPersonality={currentPersonality}
+          onSendMessage={handleSendMessage}
+          onPersonalityChange={handlePersonalityChange}
           mood={mood}
           onMoodChange={setMood}
           effectsEnabled={effectsEnabled}
           onEffectsToggle={setEffectsEnabled}
           soundEnabled={soundEnabled}
           onSoundToggle={setSoundEnabled}
-          messages={messages}
         />
       </div>
     </div>
