@@ -18,6 +18,10 @@ interface CleanChatAreaProps {
   onEffectsToggle: (enabled: boolean) => void;
   soundEnabled: boolean;
   onSoundToggle: (enabled: boolean) => void;
+  speechEnabled: boolean;
+  onSpeechToggle: (enabled: boolean) => void;
+  autoSpeakBot: boolean;
+  onAutoSpeakToggle: (enabled: boolean) => void;
 }
 
 export const CleanChatArea = ({ 
@@ -31,7 +35,11 @@ export const CleanChatArea = ({
   effectsEnabled,
   onEffectsToggle,
   soundEnabled,
-  onSoundToggle
+  onSoundToggle,
+  speechEnabled,
+  onSpeechToggle,
+  autoSpeakBot,
+  onAutoSpeakToggle
 }: CleanChatAreaProps) => {
   const [inputValue, setInputValue] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -103,6 +111,10 @@ export const CleanChatArea = ({
           onEffectsToggle={onEffectsToggle}
           soundEnabled={soundEnabled}
           onSoundToggle={onSoundToggle}
+          speechEnabled={speechEnabled}
+          onSpeechToggle={onSpeechToggle}
+          autoSpeakBot={autoSpeakBot}
+          onAutoSpeakToggle={onAutoSpeakToggle}
           onClose={() => setShowSettings(false)}
         />
       )}

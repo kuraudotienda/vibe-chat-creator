@@ -1,4 +1,4 @@
-import { Volume2, VolumeX, Sparkles, X } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, X, MessageSquare } from 'lucide-react';
 
 interface SettingsMenuProps {
   mood: number;
@@ -7,6 +7,10 @@ interface SettingsMenuProps {
   onEffectsToggle: (enabled: boolean) => void;
   soundEnabled: boolean;
   onSoundToggle: (enabled: boolean) => void;
+  speechEnabled: boolean;
+  onSpeechToggle: (enabled: boolean) => void;
+  autoSpeakBot: boolean;
+  onAutoSpeakToggle: (enabled: boolean) => void;
   onClose: () => void;
 }
 
@@ -17,6 +21,10 @@ export const SettingsMenu = ({
   onEffectsToggle,
   soundEnabled,
   onSoundToggle,
+  speechEnabled,
+  onSpeechToggle,
+  autoSpeakBot,
+  onAutoSpeakToggle,
   onClose
 }: SettingsMenuProps) => {
   return (
@@ -75,6 +83,52 @@ export const SettingsMenu = ({
             />
           </button>
         </div>
+
+        {/* Speech Toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-foreground">Text-to-Speech</span>
+          </div>
+          <button
+            onClick={() => onSpeechToggle(!speechEnabled)}
+            className={`
+              relative w-11 h-6 rounded-full transition-colors duration-200
+              ${speechEnabled ? 'bg-primary' : 'bg-muted-foreground/30'}
+            `}
+          >
+            <div
+              className={`
+                absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
+                ${speechEnabled ? 'translate-x-5' : 'translate-x-0.5'}
+              `}
+            />
+          </button>
+        </div>
+
+        {/* Auto-Speak Bot Messages */}
+        {speechEnabled && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Volume2 className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-foreground">Auto-Speak Bot</span>
+            </div>
+            <button
+              onClick={() => onAutoSpeakToggle(!autoSpeakBot)}
+              className={`
+                relative w-11 h-6 rounded-full transition-colors duration-200
+                ${autoSpeakBot ? 'bg-primary' : 'bg-muted-foreground/30'}
+              `}
+            >
+              <div
+                className={`
+                  absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
+                  ${autoSpeakBot ? 'translate-x-5' : 'translate-x-0.5'}
+                `}
+              />
+            </button>
+          </div>
+        )}
 
         {/* Mood Slider */}
         <div>
