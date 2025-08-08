@@ -4,6 +4,7 @@ import { PersonalityMode } from '../types';
 import { SimpleAnimatedAvatar } from './SimpleAnimatedAvatar';
 import { SettingsMenu } from './SettingsMenu';
 import { CommandSuggestions } from './CommandSuggestions';
+import { UserSays } from './UserSays';
 import { useChatStore } from '../stores/chatStore';
 import { keyboardSounds } from '../services/keyboardSounds';
 import { commandSystem } from '../services/commandSystem';
@@ -38,6 +39,8 @@ export const AvatarChatInterface = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showCommandSuggestions, setShowCommandSuggestions] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [lastUserMessage, setLastUserMessage] = useState('');
+  const [userSaysKey, setUserSaysKey] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-focus input on load
@@ -62,6 +65,10 @@ export const AvatarChatInterface = () => {
           return;
         }
       }
+      
+      // Show user message in UserSays component
+      setLastUserMessage(inputValue.trim());
+      setUserSaysKey(prev => prev + 1);
       
       sendMessage(inputValue.trim());
       setInputValue('');
@@ -181,13 +188,22 @@ export const AvatarChatInterface = () => {
             speechEnabled={speechEnabled}
             onSpeechToggle={setSpeechEnabled}
             autoSpeakBot={autoSpeakBot}
-            onAutoSpeakToggle={setAutoSpeakBot}
+            onAutoSpeakBot={setAutoSpeakBot}
             keyboardSoundsEnabled={keyboardSoundsEnabled}
             onKeyboardSoundsToggle={setKeyboardSoundsEnabled}
             onClose={() => setShowSettings(false)}
           />
         </div>
       )}
+
+      {/* User Says Component - Upper Area */}
+      <div className="absolute top-20 left-0 right-0 z-20 px-6">
+        <UserSays 
+          key={userSaysKey}
+          text={lastUserMessage} 
+          onComplete={() => setLastUserMessage('')}
+        />
+      </div>
 
       {/* Main Content - Centered */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
