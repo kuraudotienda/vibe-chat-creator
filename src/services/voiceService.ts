@@ -1,4 +1,4 @@
-import { PersonalityMode } from '../components/ChatInterface';
+import { PersonalityMode } from '../types';
 
 export interface VoiceConfig {
   rate: number;
@@ -40,7 +40,7 @@ class VoiceService {
       language: 'en-US'
     },
     conspiracy: {
-      rate: 0.7,
+      rate: 1.0,
       pitch: 0.8,
       volume: 0.6,
       language: 'en-US'
@@ -52,7 +52,7 @@ class VoiceService {
       language: 'en-US'
     },
     sleepy: {
-      rate: 0.6,
+      rate: 0.9,
       pitch: 0.7,
       volume: 0.5,
       language: 'en-US'
@@ -100,48 +100,7 @@ class VoiceService {
     return this.voices.find(v => v.lang.startsWith(config.language.split('-')[0])) || null;
   }
 
-  private processTextForPersonality(text: string, personality: PersonalityMode): string {
-    // Add personality-specific text modifications for more expressive speech
-    switch (personality) {
-      case 'roast':
-        // Add emphasis and pauses for dramatic effect
-        return text.replace(/(\w+!)(\s|$)/g, '$1... ')
-                  .replace(/🔥/g, ' FIRE ')
-                  .replace(/🌶️/g, ' SPICY ');
-      
-      case 'hype':
-        // Emphasize excitement words and add energy
-        return text.replace(/(\b(?:YES|WOW|AMAZING|FIRE|EPIC|GOOO)\b)/gi, '$1!')
-                  .replace(/🎉/g, ' PARTY ')
-                  .replace(/🚀/g, ' ROCKET ')
-                  .replace(/🎊/g, ' CELEBRATION ');
-      
-      case 'conspiracy':
-        // Add mysterious pauses and emphasis
-        return text.replace(/\.\.\./g, '... ... ...')
-                  .replace(/🕵️/g, ' secret agent ')
-                  .replace(/👁️/g, ' the eye ')
-                  .replace(/🌚/g, ' dark moon ');
-      
-      case 'motivational':
-        // Emphasize power words
-        return text.replace(/(\b(?:CHAMPION|BELIEVE|FIRE|INSPIRE|DOMINATE|MAKE IT HAPPEN)\b)/gi, '$1!')
-                  .replace(/💪/g, ' STRENGTH ')
-                  .replace(/⚡/g, ' POWER ')
-                  .replace(/🔥/g, ' PASSION ');
-      
-      case 'sleepy':
-        // Add relaxed pacing
-        return text.replace(/\./g, '... ')
-                  .replace(/😴/g, ' sleepy ')
-                  .replace(/🌙/g, ' moon ')
-                  .replace(/💤/g, ' dreams ');
-      
-      default:
-        return text.replace(/✨/g, ' sparkle ');
-    }
-  }
-
+  
   public speak(text: string, personality: PersonalityMode): Promise<void> {
     return new Promise((resolve, reject) => {
       // Stop any current speech
@@ -153,10 +112,10 @@ class VoiceService {
       }
 
       // Process text for personality
-      const processedText = this.processTextForPersonality(text, personality);
+      // const processedText = this.processTextForPersonality(text, personality);
       
       // Create utterance
-      const utterance = new SpeechSynthesisUtterance(processedText);
+      const utterance = new SpeechSynthesisUtterance(text);
       const config = this.personalityConfigs[personality];
       
       // Apply voice configuration

@@ -1,4 +1,4 @@
-import { PersonalityMode } from '../../components/ChatInterface';
+import { PersonalityMode } from '../../types';
 
 export interface VoiceConfig {
   rate: number;

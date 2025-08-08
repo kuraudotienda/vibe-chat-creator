@@ -203,10 +203,10 @@ export class GoogleTTSProvider implements VoiceProvider {
         volume: 0.8
       },
       roast: {
-        voiceName: 'en-US-Standard-F', // Use standard for pitch control
+        voiceName: 'en-US-Chirp3-HD-Despina', // Use standard for pitch control
         languageCode: 'en-US',
         rate: 1.0,
-        pitch: 1.0,
+        // pitch: 1.0,
         volume: 0.9
       },
       hype: {
@@ -290,38 +290,7 @@ export class GoogleTTSProvider implements VoiceProvider {
       .replace(/💤/g, ' zzz ')
       .replace(/✨/g, ' sparkle ');
 
-    // Add personality-specific SSML modifications
-    switch (personality) {
-      case 'roast':
-        // Add emphasis and dramatic pauses
-        processedText = processedText.replace(/(\w+!)(\s|$)/g, '<emphasis level="strong">$1</emphasis> <break time="0.5s"/>');
-        break;
-      
-      case 'hype':
-        // Emphasize excitement words
-        processedText = processedText.replace(/(\b(?:YES|WOW|AMAZING|FIRE|EPIC|GOOO)\b)/gi, '<emphasis level="strong">$1</emphasis>');
-        processedText = processedText.replace(/!/g, '! <break time="0.3s"/>');
-        break;
-      
-      case 'conspiracy':
-        // Add mysterious pauses and whisper effect
-        processedText = processedText.replace(/\.\.\./g, '<break time="1s"/>');
-        processedText = `<prosody volume="soft">${processedText}</prosody>`;
-        break;
-      
-      case 'motivational':
-        // Emphasize power words with stronger prosody
-        processedText = processedText.replace(/(\b(?:CHAMPION|BELIEVE|FIRE|INSPIRE|DOMINATE|MAKE IT HAPPEN)\b)/gi, '<emphasis level="strong">$1</emphasis>');
-        processedText = `<prosody volume="loud">${processedText}</prosody>`;
-        break;
-      
-      case 'sleepy':
-        // Add relaxed pacing and soft volume
-        processedText = processedText.replace(/\./g, '. <break time="0.8s"/>');
-        processedText = `<prosody rate="slow" volume="soft">${processedText}</prosody>`;
-        break;
-    }
-
+    // No SSML processing - return clean text only
     return processedText;
   }
 

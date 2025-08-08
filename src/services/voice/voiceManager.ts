@@ -1,4 +1,4 @@
-import { PersonalityMode } from '../../components/ChatInterface';
+import { PersonalityMode } from '../types';
 import { 
   VoiceProvider, 
   VoiceServiceConfig, 
@@ -331,6 +331,10 @@ export class VoiceManager {
 
   public getAvailableProviders(): string[] {
     return Array.from(this.providers.keys());
+  }
+
+  public getCurrentAudio(): HTMLAudioElement | null {
+    return this.currentAudio;
   }
 
   public async getAvailableVoices(providerName?: string) {
