@@ -1,4 +1,4 @@
-import { PersonalityMode } from './ChatInterface';
+import { PersonalityMode } from '../types';
 
 interface TypingIndicatorProps {
   personality: PersonalityMode;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Message } from './ChatInterface';
+import { Message } from '../types';
 import { Heart, Laugh, Flame, ThumbsUp } from 'lucide-react';
 
 interface MessageBubbleProps {
@@ -28,10 +28,10 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
       <div className="relative max-w-[70%]">
         <div
           className={`
-            p-4 rounded-2xl message-enter transition-all duration-300 group-hover:scale-[1.02]
+            p-4 rounded-2xl message-enter transition-smooth group-hover:scale-[1.02] wholesome-shadow hover:wholesome-glow
             ${isUser 
-              ? 'bg-user-message text-white ml-auto rounded-br-md' 
-              : 'bg-bot-message text-message-text border border-input-border rounded-bl-md'
+              ? 'bg-primary text-primary-foreground ml-auto rounded-br-md' 
+              : 'bg-card text-card-foreground border border-border rounded-bl-md'
             }
           `}
           onMouseEnter={() => setShowTimestamp(true)}
@@ -43,7 +43,7 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
           {showTimestamp && (
             <div className={`
               text-xs mt-2 transition-opacity duration-200
-              ${isUser ? 'text-white/70' : 'text-message-timestamp'}
+              ${isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'}
             `}>
               {message.timestamp.toLocaleTimeString([], { 
                 hour: '2-digit', 
@@ -55,17 +55,17 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
 
         {/* Reactions */}
         {showReactions && !isUser && (
-          <div className="absolute -top-3 right-0 flex gap-1 bg-chat-surface border border-input-border rounded-full px-2 py-1 shadow-lg animate-fade-in">
+          <div className="absolute -top-3 right-0 flex gap-1 bg-card border border-border rounded-full px-2 py-1 shadow-lg animate-fade-in wholesome-shadow">
             {reactions.map(({ icon: Icon, label }) => (
               <button
                 key={label}
-                className="p-1 hover:bg-personality-primary/20 rounded-full transition-all duration-200 hover:scale-125"
+                className="p-1 hover:bg-primary/20 rounded-full transition-smooth hover:scale-125 hover-lift"
                 onClick={() => {
                   // Add reaction logic here
                   console.log(`Reacted with ${label} to message:`, message.id);
                 }}
               >
-                <Icon className="w-4 h-4 text-personality-primary" />
+                <Icon className="w-4 h-4 text-primary" />
               </button>
             ))}
           </div>
@@ -74,7 +74,7 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
         {/* Bot personality indicator */}
         {!isUser && message.personality && (
           <div className="absolute -bottom-2 left-4">
-            <div className="w-3 h-3 bg-personality-primary rounded-full border-2 border-chat-bg animate-pulse" />
+            <div className="w-3 h-3 bg-primary rounded-full border-2 border-background animate-pulse" />
           </div>
         )}
       </div>

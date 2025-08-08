@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { PersonalityMode } from './ChatInterface';
+import { PersonalityMode } from '../types';
 
 interface ParticleBackgroundProps {
   personality: PersonalityMode;

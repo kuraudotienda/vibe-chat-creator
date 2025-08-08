@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Message, PersonalityMode } from './ChatInterface';
+import { Message, PersonalityMode } from '../types';
 import { MessageBubble } from './MessageBubble';
 import { TypingIndicator } from './TypingIndicator';
 import { ChatInput } from './ChatInput';

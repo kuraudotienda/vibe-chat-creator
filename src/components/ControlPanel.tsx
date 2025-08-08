@@ -1,5 +1,5 @@
 import { Volume2, VolumeX, Sparkles, SparklesIcon, Download, Palette } from 'lucide-react';
-import { Message } from './ChatInterface';
+import { Message } from '../types';
 
 interface ControlPanelProps {
   mood: number;

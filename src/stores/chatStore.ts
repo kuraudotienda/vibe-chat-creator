@@ -1,11 +1,15 @@
 import { create } from 'zustand';
-import { Message, PersonalityMode } from '../components/ChatInterface';
+import { Message, PersonalityMode, AgentRequest } from '../types';
 import { voiceManager } from '../services/voice/voiceManager';
+import { agentService } from '../services/agentService';
 
 interface ChatState {
   // Messages state
   messages: Message[];
   isTyping: boolean;
+  
+  // Session state
+  sessionId: string;
   
   // Personality state
   currentPersonality: PersonalityMode;
@@ -14,6 +18,7 @@ interface ChatState {
   mood: number;
   effectsEnabled: boolean;
   soundEnabled: boolean;
+  keyboardSoundsEnabled: boolean;
   
   // Speech state
   isSpeaking: boolean;
@@ -22,6 +27,7 @@ interface ChatState {
   currentSpeakingMessageId: string | null;
   isSynthesizing: boolean;
   synthesisQueue: number;
+  currentAudioElement: HTMLAudioElement | null;
   
   // Actions
   addMessage: (message: Message) => void;
@@ -31,6 +37,7 @@ interface ChatState {
   setMood: (mood: number) => void;
   setEffectsEnabled: (enabled: boolean) => void;
   setSoundEnabled: (enabled: boolean) => void;
+  setKeyboardSoundsEnabled: (enabled: boolean) => void;
   
   // Speech actions
   setIsSpeaking: (speaking: boolean) => void;
@@ -39,30 +46,25 @@ interface ChatState {
   setCurrentSpeakingMessageId: (id: string | null) => void;
   setIsSynthesizing: (synthesizing: boolean) => void;
   setSynthesisQueue: (count: number) => void;
+  setCurrentAudioElement: (element: HTMLAudioElement | null) => void;
   speakMessage: (message: Message) => Promise<void>;
   stopSpeaking: () => void;
   
   // Complex actions
-  sendMessage: (text: string) => void;
+  sendMessage: (text: string) => Promise<void>;
   changePersonality: (personality: PersonalityMode) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
-  // Initial state
-  messages: [
-    {
-      id: '1',
-      text: 'Hey! I\'m your AI content creation buddy. Pick a personality mode and let\'s create some amazing social media content together! ✨',
-      sender: 'bot',
-      timestamp: new Date(),
-      personality: 'default'
-    }
-  ],
+  // Initial state - empty messages for avatar mode
+  messages: [],
   isTyping: false,
+  sessionId: `session_${Date.now()}_${Math.random().toString(36).substring(2)}`,
   currentPersonality: 'default',
   mood: 50,
   effectsEnabled: true,
   soundEnabled: true,
+  keyboardSoundsEnabled: true,
   
   // Speech state
   isSpeaking: false,
@@ -71,6 +73,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   currentSpeakingMessageId: null,
   isSynthesizing: false,
   synthesisQueue: 0,
+  currentAudioElement: null,
   
   // Simple actions
   addMessage: (message) => set((state) => ({ 
@@ -88,6 +91,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setEffectsEnabled: (enabled) => set({ effectsEnabled: enabled }),
   
   setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
+
+  setKeyboardSoundsEnabled: (enabled) => {
+    set({ keyboardSoundsEnabled: enabled });
+    // Update the keyboard sounds service
+    import('../services/keyboardSounds').then(({ keyboardSounds }) => {
+      keyboardSounds.setEnabled(enabled);
+    });
+  },
   
   // Speech actions
   setIsSpeaking: (speaking) => set({ isSpeaking: speaking }),
@@ -101,6 +112,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setIsSynthesizing: (synthesizing) => set({ isSynthesizing: synthesizing }),
   
   setSynthesisQueue: (count) => set({ synthesisQueue: count }),
+  
+  setCurrentAudioElement: (element) => set({ currentAudioElement: element }),
   
   speakMessage: async (message) => {
     const { 
@@ -117,24 +130,34 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     try {
       setCurrentSpeakingMessageId(message.id);
-      setIsSynthesizing(true);
+      setIsSynthesizing(true); // Brief synthesis phase
       
       const personality = message.personality || currentPersonality;
       
-      await voiceManager.speak(message.text, personality, {
+      // Remove emojis from text before speaking
+      const textToSpeak = removeEmojis(message.text);
+      
+      await voiceManager.speak(textToSpeak, personality, {
         onStart: () => {
+          // Synthesis complete, playback starting
           setIsSynthesizing(false);
           setIsSpeaking(true);
+          // Track the current audio element for lip sync
+          const currentAudio = voiceManager.getCurrentAudio();
+          set({ currentAudioElement: currentAudio });
         },
         onEnd: () => {
+          // Playback finished
           setIsSpeaking(false);
           setCurrentSpeakingMessageId(null);
+          set({ currentAudioElement: null });
         },
         onError: (error) => {
           console.error('Speech synthesis error:', error);
           setIsSynthesizing(false);
           setIsSpeaking(false);
           setCurrentSpeakingMessageId(null);
+          set({ currentAudioElement: null });
         }
       });
     } catch (error) {
@@ -154,12 +177,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
   
   // Complex actions
-  sendMessage: (text) => {
+  sendMessage: async (text) => {
     const { 
       addMessage, 
       setIsTyping, 
       setIsSynthesizing,
       currentPersonality, 
+      mood,
+      messages,
       autoSpeakBot, 
       speakMessage 
     } = get();
@@ -175,68 +200,70 @@ export const useChatStore = create<ChatState>((set, get) => ({
     addMessage(userMessage);
     setIsTyping(true);
     
-    // Generate bot response text
-    const botResponseText = getBotResponse(text, currentPersonality);
-    const botMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      text: botResponseText,
-      sender: 'bot',
-      timestamp: new Date(),
-      personality: currentPersonality
-    };
-    
-    // Start voice synthesis immediately if auto-speak is enabled
-    let synthesisPromise: Promise<void> | null = null;
-    if (autoSpeakBot) {
-      setIsSynthesizing(true);
-      synthesisPromise = voiceManager.synthesize(
-        botMessage.text, 
-        currentPersonality,
-        {
-          onSynthesisStart: () => {
-            console.log('Voice synthesis started');
-          },
-          onSynthesisComplete: () => {
-            setIsSynthesizing(false);
-            console.log('Voice synthesis completed');
-          },
-          onError: (error) => {
-            console.error('Voice synthesis error:', error);
-            setIsSynthesizing(false);
-          }
-        }
-      ).then(() => undefined).catch((error) => {
-        console.error('Synthesis failed:', error);
-        setIsSynthesizing(false);
-      });
-    }
-    
-    // Simulate typing duration (ensure minimum time for synthesis)
-    const typingDuration = Math.max(
-      2000 + Math.random() * 1500, // Natural typing time
-      autoSpeakBot ? 3000 : 1500   // Extra time for synthesis if needed
-    );
-    
-    setTimeout(async () => {
-      // Add bot message to chat
-      addMessage(botMessage);
-      setIsTyping(false);
+    try {
+      // Prepare API request
+      const agentRequest: AgentRequest = {
+        message: text,
+        personality: currentPersonality,
+        mood,
+        sessionId: get().sessionId,
+        userId: undefined // Set this if you have user authentication
+      };
       
-      // If auto-speak is enabled and synthesis is ready, start playback
-      if (autoSpeakBot && synthesisPromise) {
-        try {
-          // Wait for synthesis to complete if still in progress
-          await synthesisPromise;
-          
-          // Small delay to let the message appear first
+      // Call agent API
+      const response = await agentService.sendMessage(agentRequest);
+      console.log('##################');
+      console.log('Agent response:', response);
+      console.log('##################');
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: response.message,
+        sender: 'bot',
+        timestamp: new Date(),
+        personality: currentPersonality
+      };
+      
+      // Simulate realistic typing duration
+      const typingDuration = Math.min(
+        Math.max(1500, response.responseTime || 2000), // Realistic minimum
+        4000 // Maximum cap
+      );
+      
+      setTimeout(() => {
+        // For avatar mode, don't add bot message to chat - just speak it
+        setIsTyping(false);
+        
+        // Start speech immediately for avatar mode
+        if (autoSpeakBot) {
           setTimeout(() => {
             speakMessage(botMessage);
-          }, 300);
-        } catch (error) {
-          console.error('Failed to play synthesized speech:', error);
+          }, 300); // Small delay for smooth transition
         }
-      }
-    }, typingDuration);
+      }, typingDuration);
+      
+    } catch (error) {
+      console.error('Agent API error:', error);
+      setIsTyping(false);
+      
+      // Fallback to old mock response system
+      const fallbackResponse = getBotResponse(text, currentPersonality);
+      const fallbackMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: fallbackResponse,
+        sender: 'bot',
+        timestamp: new Date(),
+        personality: currentPersonality
+      };
+      
+      setTimeout(() => {
+        // For avatar mode, don't add fallback message to chat - just speak it
+        if (autoSpeakBot) {
+          setTimeout(() => {
+            speakMessage(fallbackMessage);
+          }, 300);
+        }
+      }, 2000);
+    }
   },
   
   changePersonality: (personality) => {
@@ -253,9 +280,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       personality
     };
     
-    addMessage(switchMessage);
-    
-    // Auto-speak personality switch message if enabled
+    // For avatar mode, don't add switch message to chat - just speak it
     if (autoSpeakBot) {
       setTimeout(() => {
         speakMessage(switchMessage);
@@ -310,8 +335,17 @@ const getPersonalitySwitchMessage = (personality: PersonalityMode): string => {
     hype: "HYPE BEAST MODE ACTIVATED! 🎉🚀 EVERYTHING IS AMAZING AND WE'RE GOING TO MAKE THE BEST CONTENT EVER!",
     conspiracy: "Entering conspiracy mode... 🕵️ The truth is out there, and we're going to find it together... 👁️",
     motivational: "MOTIVATIONAL MODE ENGAGED! 💪 Time to CREATE, INSPIRE, and DOMINATE! You've got this CHAMPION!",
-    sleepy: "Sleepy mode activated... 😴 Let's make some chill, dreamy content... zzz... 🌙"
+    sleepy: "Sleepy mode activated... 😴 Let's make some chill, dreamy content... zzz... 🌙",
+    funfact: "Fun fact mode! Activated!",
   };
 
   return messages[personality];
+};
+
+// Helper function to remove emojis from text before speaking
+const removeEmojis = (text: string): string => {
+  // Regex to match emoji characters and emoji sequences
+  const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F018}-\u{1F270}]|[\u{238C}-\u{2454}]|[\u{20D0}-\u{20FF}]|[\u{FE0F}]|[\u{200D}]/gu;
+  
+  return text.replace(emojiRegex, '').replace(/\s+/g, ' ').trim();
 };
