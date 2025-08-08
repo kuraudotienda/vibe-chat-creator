@@ -2,16 +2,6 @@ import { CleanChatArea } from './CleanChatArea';
 import { ParticleBackground } from './ParticleBackground';
 import { useChatStore } from '../stores/chatStore';
 
-export type PersonalityMode = 'default' | 'roast' | 'hype' | 'conspiracy' | 'motivational' | 'sleepy';
-
-export interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-  personality?: PersonalityMode;
-}
-
 export const ChatInterface = () => {
   const {
     messages,
@@ -22,13 +12,15 @@ export const ChatInterface = () => {
     soundEnabled,
     speechEnabled,
     autoSpeakBot,
+    keyboardSoundsEnabled,
     sendMessage,
     changePersonality,
     setMood,
     setEffectsEnabled,
     setSoundEnabled,
     setSpeechEnabled,
-    setAutoSpeakBot
+    setAutoSpeakBot,
+    setKeyboardSoundsEnabled
   } = useChatStore();
 
   return (
@@ -62,6 +54,8 @@ export const ChatInterface = () => {
           onSpeechToggle={setSpeechEnabled}
           autoSpeakBot={autoSpeakBot}
           onAutoSpeakToggle={setAutoSpeakBot}
+          keyboardSoundsEnabled={keyboardSoundsEnabled}
+          onKeyboardSoundsToggle={setKeyboardSoundsEnabled}
         />
       </div>
     </div>

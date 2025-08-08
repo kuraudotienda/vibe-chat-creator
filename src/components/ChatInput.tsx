@@ -66,13 +66,13 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
       {/* Quick Starters */}
       {showQuickStarters && message.length === 0 && (
         <div className="mb-4 animate-fade-in">
-          <p className="text-sm text-message-timestamp mb-3">💡 Quick starters:</p>
+          <p className="text-sm text-muted-foreground mb-3">💡 Quick starters:</p>
           <div className="flex flex-wrap gap-2">
             {quickStarters.map((starter, index) => (
               <button
                 key={index}
                 onClick={() => handleQuickStarter(starter)}
-                className="px-3 py-2 text-sm bg-chat-surface hover:bg-personality-primary/20 border border-input-border hover:border-personality-primary/50 rounded-lg transition-all duration-200 hover:scale-105"
+                className="px-3 py-2 text-sm quick-starter rounded-lg transition-smooth wholesome-shadow hover:wholesome-glow text-card-foreground relative z-10"
               >
                 {starter}
               </button>
@@ -82,10 +82,10 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
       )}
 
       {/* Input Area */}
-      <div className="glass rounded-2xl border border-input-border focus-within:border-personality-primary transition-all duration-300">
-        <div className="flex items-end gap-3 p-4">
+      <div className="glass input-glow soft-inner-glow rounded-2xl border border-border focus-within:border-primary transition-smooth wholesome-shadow focus-within:wholesome-glow relative overflow-hidden">
+        <div className="flex items-end gap-3 p-4 relative z-10">
           {/* Attachment Button */}
-          <button className="p-2 text-message-timestamp hover:text-personality-primary transition-colors duration-200 hover:scale-110">
+          <button className="p-2 text-muted-foreground hover:text-primary transition-smooth hover:scale-110 hover-lift">
             <Paperclip className="w-5 h-5" />
           </button>
 
@@ -97,20 +97,20 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
               onChange={handleTextareaChange}
               onKeyPress={handleKeyPress}
               placeholder="Type your message... (Shift + Enter for new line)"
-              className="w-full bg-transparent text-foreground placeholder-message-timestamp resize-none focus:outline-none max-h-32 min-h-[24px]"
+              className="w-full bg-transparent text-foreground placeholder-muted-foreground resize-none focus:outline-none max-h-32 min-h-[24px]"
               rows={1}
             />
             
             {/* Character counter */}
             {message.length > 0 && (
-              <div className="absolute -bottom-5 right-0 text-xs text-message-timestamp">
+              <div className="absolute -bottom-5 right-0 text-xs text-muted-foreground">
                 {message.length} chars
               </div>
             )}
           </div>
 
           {/* Emoji Button */}
-          <button className="p-2 text-message-timestamp hover:text-personality-primary transition-colors duration-200 hover:scale-110">
+          <button className="p-2 text-muted-foreground hover:text-primary transition-smooth hover:scale-110 hover-lift">
             <Smile className="w-5 h-5" />
           </button>
 
@@ -118,10 +118,10 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
           <button
             onClick={toggleRecording}
             className={`
-              p-2 rounded-lg transition-all duration-200 hover:scale-110
+              p-2 rounded-lg transition-smooth hover:scale-110 hover-lift
               ${isRecording 
                 ? 'text-red-500 recording-pulse' 
-                : 'text-message-timestamp hover:text-personality-primary'
+                : 'text-muted-foreground hover:text-primary'
               }
             `}
           >
@@ -133,10 +133,10 @@ export const ChatInput = ({ onSendMessage }: ChatInputProps) => {
             onClick={handleSend}
             disabled={!message.trim()}
             className={`
-              p-3 rounded-xl transition-all duration-200 hover:scale-105
+              p-3 rounded-xl transition-smooth hover-lift relative
               ${message.trim()
-                ? 'bg-personality-primary hover:bg-personality-secondary text-white neon-glow' 
-                : 'bg-chat-surface text-message-timestamp cursor-not-allowed'
+                ? 'send-button text-primary-foreground neon-glow wholesome-shadow' 
+                : 'bg-muted text-muted-foreground cursor-not-allowed'
               }
             `}
           >
