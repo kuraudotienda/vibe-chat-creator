@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Settings, ChevronDown } from 'lucide-react';
 import { PersonalityMode } from '../types';
-import { SimpleAnimatedAvatar } from './SimpleAnimatedAvatar';
+import { VisualizerSelector } from './VisualizerSelector';
 import { SettingsMenu } from './SettingsMenu';
 import { CommandSuggestions } from './CommandSuggestions';
 import { UserSays } from './UserSays';
@@ -209,7 +209,7 @@ export const AvatarChatInterface = () => {
       <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
         {/* Avatar - Large and Centered */}
         <div className="mb-8">
-          <SimpleAnimatedAvatar
+          <VisualizerSelector
             personality={currentPersonality}
             isListening={isListening}
             isSpeaking={isSpeaking}
